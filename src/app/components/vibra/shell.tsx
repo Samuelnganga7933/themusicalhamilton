@@ -170,7 +170,7 @@ const SCREENS = {
 } as const;
 
 /** The device. 390×844 (iPhone) / 393×851 (Pixel) — one layout, two chromes. */
-export function PhoneShell({ platform }: { platform: Platform }) {
+export function PhoneShell({ platform, fullScreen = false }: { platform: Platform; fullScreen?: boolean }) {
   const { screen, settings, resolvedTheme, accent, m, hasStarted } = useVibra();
   const [reading, setReading] = useState(false);
   const scroller = useRef<HTMLDivElement>(null);
@@ -184,12 +184,12 @@ export function PhoneShell({ platform }: { platform: Platform }) {
       className="relative overflow-hidden"
       style={
         {
-          width: platform === "ios" ? 390 : 393,
-          height: platform === "ios" ? 844 : 851,
-          borderRadius: platform === "ios" ? 54 : 40,
+          width: fullScreen ? "100%" : platform === "ios" ? 390 : 393,
+          height: fullScreen ? "100dvh" : platform === "ios" ? 844 : 851,
+          borderRadius: fullScreen ? 0 : platform === "ios" ? 54 : 40,
           background: "var(--v-bg)",
           color: "var(--v-text)",
-            boxShadow: "0 50px 100px rgba(0,0,0,0.55), 0 0 0 10px #17171A, 0 0 0 11px #2C2C30",
+          boxShadow: fullScreen ? "none" : "0 50px 100px rgba(0,0,0,0.55), 0 0 0 10px #17171A, 0 0 0 11px #2C2C30",
           ["--v-accent-live" as string]: accent,
           ["--v-radius" as string]: `${settings.radius}px`,
           ["--v-lift" as string]: settings.neumorphism ? 1 : 0.4,
@@ -239,6 +239,131 @@ export function PhoneShell({ platform }: { platform: Platform }) {
           style={{ width: 106, height: 3.5, background: "var(--v-text)", opacity: 0.35 }}
         />
       )}
+    </div>
+  );
+}
+
+/**
+ * Desktop web experience. It uses the same screens and store as the mobile
+ * shell, but replaces the phone frame with a persistent navigation rail and a
+ * wide reading area suitable for keyboard and pointer use.
+ */
+export function WebShell() {
+  const { screen, resolvedTheme, accent, m, settings, go, tab, hasStarted } = useVibra();
+  const Screen = SCREENS[screen];
+  const entry = screen === "splash" || screen === "login" || screen === "onboarding";
+  const activeLabel = TABS.find((item) => item.id === tab)?.label ?? "Vibra";
+
+  return (
+    <div
+      data-vibra={resolvedTheme}
+      className="relative min-h-screen overflow-hidden"
+      style={{
+        background: "var(--v-bg)",
+        color: "var(--v-text)",
+        ["--v-accent-live" as string]: accent,
+        ["--v-radius" as string]: `${settings.radius}px`,
+        ["--v-lift" as string]: settings.neumorphism ? 1 : 0.4,
+      } as React.CSSProperties}
+    >
+      <AmbientBackground />
+      {entry ? (
+        <main className="relative z-10 flex min-h-screen items-center justify-center px-6 py-12">
+          <AnimatePresence mode="wait">
+            <motion.div key={screen} {...m.screen} className="w-full max-w-[560px]">
+              <Screen />
+            </motion.div>
+          </AnimatePresence>
+        </main>
+      ) : (
+        <div className="relative z-10 grid min-h-screen grid-cols-[220px_minmax(0,1fr)]">
+          <aside
+            className="hidden border-r px-5 py-7 lg:flex lg:flex-col"
+            style={{
+              borderColor: "var(--v-border)",
+              background: "color-mix(in srgb, var(--v-bg-deep) 78%, transparent)",
+            }}
+          >
+            <button type="button" onClick={() => go("home")} className="flex items-center gap-3 text-left">
+              <span
+                className="grid h-9 w-9 place-items-center rounded-full"
+                style={{ background: accent, color: "#0B1B0F" }}
+              >
+                <span className="text-[14px] font-semibold">V</span>
+              </span>
+              <span>
+                <span className="block text-[17px] font-semibold tracking-tight">Vibra</span>
+                <span className="block text-[11px]" style={{ color: "var(--v-text-3)" }}>
+                  AI-native discovery
+                </span>
+              </span>
+            </button>
+            <nav className="mt-12 space-y-1" aria-label="Primary navigation">
+              {TABS.map((item) => {
+                const on = tab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => go(item.id)}
+                    aria-current={on ? "page" : undefined}
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-[13px] transition-colors"
+                    style={{
+                      color: on ? "var(--v-text)" : "var(--v-text-3)",
+                      background: on ? `${accent}18` : "transparent",
+                    }}
+                  >
+                    <item.icon size={18} color={on ? accent : "currentColor"} strokeWidth={on ? 2.2 : 1.8} />
+                    {item.label}
+                  </button>
+                );
+              })}
+            </nav>
+            <div className="mt-auto border-t pt-5" style={{ borderColor: "var(--v-border)" }}>
+              <button
+                type="button"
+                onClick={() => go("profile")}
+                className="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-[12px]"
+                style={{ color: "var(--v-text-2)" }}
+              >
+                <span>Profile & settings</span>
+                <User size={16} />
+              </button>
+            </div>
+          </aside>
+          <main className="relative min-w-0 px-5 py-6 pb-32 sm:px-8 lg:px-12 lg:py-8">
+            <header className="mx-auto flex max-w-[1080px] items-center justify-between gap-4">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.18em]" style={{ color: accent }}>
+                  {activeLabel}
+                </p>
+                <h1 className="mt-1 text-[26px] font-semibold tracking-[-0.03em] sm:text-[30px]">
+                  Find what to play next
+                </h1>
+              </div>
+              <button
+                type="button"
+                onClick={() => go("profile")}
+                className="hidden rounded-full px-4 py-2 text-[12px] sm:block"
+                style={{
+                  background: "var(--v-card)",
+                  border: "1px solid var(--v-border)",
+                  color: "var(--v-text-2)",
+                }}
+              >
+                Account
+              </button>
+            </header>
+            <AnimatePresence mode="wait">
+              <motion.div key={screen} {...m.screen} className="mx-auto mt-8 max-w-[1080px]">
+                <Screen />
+              </motion.div>
+            </AnimatePresence>
+            {hasStarted && <MiniPlayer />}
+          </main>
+        </div>
+      )}
+      <NowPlaying />
     </div>
   );
 }
