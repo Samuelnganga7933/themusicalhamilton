@@ -27,7 +27,7 @@ export function TrackRow({
     >
       <button
         type="button"
-        onClick={() => play(track.id)}
+        onClick={() => play(track)}
         aria-label={`Play ${track.title} by ${track.artist}`}
         className="group relative shrink-0"
         style={{ width: size, height: size }}

@@ -6,6 +6,7 @@ import { RECENT_SEARCHES, SEARCH_EXAMPLES, TRACKS, trackById } from "../data";
 import { Inset, Skeleton } from "../primitives";
 import { TrackRow } from "../track-row";
 import { DUR, EASE } from "../motion";
+import { apiTrackToTrack, searchMusic } from "../api";
 
 /** Music search with support for track, artist, album, and mood terms. */
 export function SearchScreen() {
@@ -14,9 +15,18 @@ export function SearchScreen() {
   const [committed, setCommitted] = useState<string | null>(null);
   const [thinking, setThinking] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [remoteTracks, setRemoteTracks] = useState<ReturnType<typeof apiTrackToTrack>[]>([]);
+  const [searchError, setSearchError] = useState("");
 
   const match = useMemo(() => {
     if (!committed) return null;
+    if (remoteTracks.length) {
+      return {
+        query: committed,
+        summary: `Found ${remoteTracks.length} tracks in Music Search`,
+        trackIds: remoteTracks.map((track) => track.id),
+      };
+    }
     const q = committed.toLowerCase();
     const example = SEARCH_EXAMPLES.find((e) => e.query.toLowerCase() === q);
     if (example) return example;
@@ -35,12 +45,20 @@ export function SearchScreen() {
           : "No exact match · try an artist, track, album, or mood",
       trackIds: (hits.length ? hits : TRACKS.slice(0, 3)).map((t) => t.id),
     };
-  }, [committed]);
+  }, [committed, remoteTracks]);
 
-  const run = (q: string) => {
+  const run = async (q: string) => {
     setQuery(q);
     setCommitted(q);
     setThinking(true);
+    setSearchError("");
+    try {
+      const tracks = (await searchMusic(q)).map(apiTrackToTrack);
+      setRemoteTracks(tracks);
+    } catch {
+      setRemoteTracks([]);
+      setSearchError("Live search is unavailable, showing saved music instead.");
+    }
   };
 
   useEffect(() => {
@@ -118,6 +136,8 @@ export function SearchScreen() {
                 onClick={() => {
                   setQuery("");
                   setCommitted(null);
+                  setRemoteTracks([]);
+                  setSearchError("");
                 }}
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -167,7 +187,7 @@ export function SearchScreen() {
                   className="mt-1.5 text-[14px]"
                   style={{ color: "var(--v-text)", lineHeight: 1.5, letterSpacing: "-0.01em" }}
                 >
-                  {match.summary}
+                  {searchError || match.summary}
                 </p>
               </div>
             </motion.div>
@@ -285,8 +305,8 @@ export function SearchScreen() {
             </div>
           ) : (
             <>
-              {match?.trackIds.map((id, i) => (
-                <TrackRow key={id} track={trackById(id)} index={i} showReason />
+              {(remoteTracks.length ? remoteTracks : match?.trackIds.map((id) => trackById(id)) ?? []).map((track, i) => (
+                <TrackRow key={track.id} track={track} index={i} showReason />
               ))}
               <p
                 className="mt-8 px-5 text-[13px]"

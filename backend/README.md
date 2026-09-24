@@ -15,7 +15,7 @@ Health check: `GET http://localhost:8000/health`
 
 ## Endpoints
 
-- `GET /api/v1/search?q=Tems&limit=20` — YouTube Music song metadata.
+- `GET /api/v1/search?q=Tems&limit=20` — YouTube Music song metadata. Results use deterministic lexical ranking, so exact title, artist, and album terms win without rewriting the query.
 - `GET /api/v1/stream/{video_id}` — resolves a short-lived direct audio URL with expiry metadata.
 - `GET /api/v1/proxy?stream_url=<encoded-url>` — forwards optional `Range` headers and streams audio bytes with `206 Partial Content` when supported.
 - `GET /api/v1/lyrics?track_name=...&artist_name=...&album_name=...` — returns LRCLIB plain and synced `.lrc` lyrics.

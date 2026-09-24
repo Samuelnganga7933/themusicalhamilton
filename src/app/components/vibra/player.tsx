@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion, Reorder } from "motion/react";
 import {
   ChevronDown,
@@ -11,6 +12,7 @@ import {
   Shuffle,
   SkipBack,
   SkipForward,
+  Mic2,
   Volume2,
 } from "lucide-react";
 import { useVibra } from "./store";
@@ -124,10 +126,51 @@ export function NowPlaying() {
     setNowPlayingOpen,
     setQueueOpen,
     resolvedTheme,
+    audioUrl,
+    lyrics,
+    lyricsLoading,
+    lyricsError,
   } = useVibra();
 
   const pct = (progress / track.duration) * 100;
   const isLiked = Boolean(liked[track.id]);
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [lyricsOpen, setLyricsOpen] = useState(false);
+  const parsedLyrics = useMemo(() => {
+    if (!lyrics?.syncedLyrics) return [];
+    return lyrics.syncedLyrics.split("\n").flatMap((line) => {
+      const match = line.match(/^\[(\d+):(\d+(?:\.\d+)?)\](.*)$/);
+      return match ? [{ time: Number(match[1]) * 60 + Number(match[2]), text: match[3].trim() }] : [];
+    });
+  }, [lyrics?.syncedLyrics]);
+  const activeLyricIndex = parsedLyrics.reduce(
+    (active, line, index) => (line.time <= progress ? index : active),
+    -1,
+  );
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !audioUrl) return;
+    audio.src = audioUrl;
+    audio.load();
+    const onTimeUpdate = () => seek(audio.currentTime);
+    const onEnded = () => next();
+    audio.addEventListener("timeupdate", onTimeUpdate);
+    audio.addEventListener("ended", onEnded);
+    if (playing) void audio.play().catch(() => undefined);
+    return () => {
+      audio.pause();
+      audio.removeEventListener("timeupdate", onTimeUpdate);
+      audio.removeEventListener("ended", onEnded);
+    };
+  }, [audioUrl, next, playing, seek]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio || !audioUrl) return;
+    if (playing) void audio.play().catch(() => undefined);
+    else audio.pause();
+  }, [audioUrl, playing]);
   const shareTrack = async () => {
     const shareData = {
       title: track.title,
@@ -183,7 +226,7 @@ export function NowPlaying() {
           />
 
           <div className="absolute inset-0">
-            <div className="relative flex h-full flex-col px-6 pb-9 pt-12">
+              <div className="relative mx-auto flex h-full w-full max-w-[720px] flex-col px-6 pb-9 pt-12">
               <div className="flex items-center justify-between">
                 <IconButton label="Close now playing" tone="bare" onClick={() => setNowPlayingOpen(false)}>
                   <ChevronDown size={22} color="var(--v-text)" />
@@ -206,11 +249,11 @@ export function NowPlaying() {
 
               {/* Artwork enlarges continuously out of the mini player. */}
               <div className="mt-8 flex justify-center">
-                <motion.div layoutId="player-art" transition={SHARED_SPRING} style={{ borderRadius: 26, width: "100%" }}>
+                <motion.div layoutId="player-art" transition={SHARED_SPRING} style={{ borderRadius: 26, width: "min(100%, 520px)", margin: "0 auto" }}>
                   <Art
                     src={track.art}
                     alt={`${track.album} artwork`}
-                    className="aspect-square w-full"
+                    className="aspect-square w-full max-w-[520px]"
                     radius={26}
                     style={{ boxShadow: `0 30px 70px ${track.tone}40, 0 10px 30px rgba(0,0,0,0.4)` }}
                   />
@@ -319,11 +362,42 @@ export function NowPlaying() {
                     <ListMusic size={18} color="var(--v-text-2)" />
                   </IconButton>
                 </div>
+
+                <div className="mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setLyricsOpen((open) => !open)}
+                    className="flex items-center gap-2 text-[12px]"
+                    style={{ color: lyricsOpen ? accent : "var(--v-text-3)" }}
+                  >
+                    <Mic2 size={14} />
+                    {lyricsOpen ? "Hide lyrics" : "Show lyrics"}
+                  </button>
+                  {lyricsOpen && (
+                    <div className="mt-3 max-h-36 overflow-y-auto rounded-2xl px-4 py-3" style={{ background: "var(--v-surface)" }}>
+                      {lyricsLoading && <p className="text-[12px]" style={{ color: "var(--v-text-3)" }}>Loading lyrics…</p>}
+                      {!lyricsLoading && lyricsError && <p className="text-[12px]" style={{ color: "var(--v-text-3)" }}>{lyricsError}</p>}
+                      {!lyricsLoading && !lyricsError && parsedLyrics.length > 0 && (
+                        <div className="space-y-1.5">
+                          {parsedLyrics.map((line, index) => (
+                            <p key={`${line.time}-${index}`} className="text-[13px]" style={{ color: index === activeLyricIndex ? "var(--v-text)" : "var(--v-text-3)", fontWeight: index === activeLyricIndex ? 600 : 400 }}>
+                              {line.text || "♪"}
+                            </p>
+                          ))}
+                        </div>
+                      )}
+                      {!lyricsLoading && !lyricsError && parsedLyrics.length === 0 && lyrics?.plainLyrics && (
+                        <p className="whitespace-pre-line text-[13px]" style={{ color: "var(--v-text-2)" }}>{lyrics.plainLyrics}</p>
+                      )}
+                    </div>
+                  )}
+                </div>
               </motion.div>
             </div>
           </div>
 
           <QueueSheet />
+          <audio ref={audioRef} preload="none" aria-hidden="true" />
         </motion.div>
       )}
     </AnimatePresence>

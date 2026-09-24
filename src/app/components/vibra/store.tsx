@@ -10,6 +10,7 @@ import {
 } from "react";
 import { motionKit, type MotionKit } from "./motion";
 import { TRACKS, trackById, type Track } from "./data";
+import { fetchLyrics, proxyAudioUrl, resolveStream, type LyricsResult } from "./api";
 
 // ─── Settings ────────────────────────────────────────────────────────────────
 
@@ -108,8 +109,12 @@ interface Store {
   liked: Record<string, boolean>;
   queue: Track[];
   hasStarted: boolean;
+  audioUrl: string | null;
+  lyrics: LyricsResult | null;
+  lyricsLoading: boolean;
+  lyricsError: string | null;
 
-  play: (id?: string) => void;
+  play: (trackOrId?: Track | string) => void;
   toggle: () => void;
   next: () => void;
   prev: () => void;
@@ -154,6 +159,10 @@ export function VibraProvider({ children }: { children: ReactNode }) {
   const [liked, setLiked] = useState<Record<string, boolean>>({ t3: true, t7: true });
   const [queue, setQueueState] = useState<Track[]>(TRACKS.slice(1, 6));
   const [hasStarted, setHasStarted] = useState(false);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [lyrics, setLyrics] = useState<LyricsResult | null>(null);
+  const [lyricsLoading, setLyricsLoading] = useState(false);
+  const [lyricsError, setLyricsError] = useState<string | null>(null);
   const [nowPlayingOpen, setNowPlayingOpen] = useState(false);
   const [queueOpen, setQueueOpen] = useState(false);
 
@@ -196,10 +205,37 @@ export function VibraProvider({ children }: { children: ReactNode }) {
     return () => window.clearInterval(id);
   }, [playing]);
 
-  const play = useCallback((id?: string) => {
-    if (id) {
-      setTrack(trackById(id));
+  useEffect(() => {
+    let cancelled = false;
+    setLyrics(null);
+    setLyricsError(null);
+    setLyricsLoading(true);
+    fetchLyrics(track.title, track.artist, track.album)
+      .then((result) => {
+        if (!cancelled) setLyrics(result);
+      })
+      .catch(() => {
+        if (!cancelled) setLyricsError("Lyrics are not available for this track yet.");
+      })
+      .finally(() => {
+        if (!cancelled) setLyricsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [track.id, track.title, track.artist, track.album]);
+
+  const play = useCallback((trackOrId?: Track | string) => {
+    if (trackOrId) {
+      const selected = typeof trackOrId === "string" ? trackById(trackOrId) : trackOrId;
+      setTrack(selected);
       setProgress(0);
+      setAudioUrl(null);
+      if (selected.sourceId) {
+        resolveStream(selected.sourceId)
+          .then((source) => setAudioUrl(proxyAudioUrl(source.url)))
+          .catch(() => setAudioUrl(null));
+      }
     }
     setPlaying(true);
     setHasStarted(true);
@@ -268,6 +304,10 @@ export function VibraProvider({ children }: { children: ReactNode }) {
     liked,
     queue,
     hasStarted,
+    audioUrl,
+    lyrics,
+    lyricsLoading,
+    lyricsError,
     play,
     toggle: () => {
       setPlaying((p) => !p);

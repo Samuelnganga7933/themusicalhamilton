@@ -5,6 +5,7 @@
 
 export interface Track {
   id: string;
+  sourceId?: string;
   title: string;
   artist: string;
   album: string;

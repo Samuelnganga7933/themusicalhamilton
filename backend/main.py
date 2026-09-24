@@ -4,6 +4,7 @@ import asyncio
 import os
 import re
 import time
+import unicodedata
 from typing import Any, AsyncIterator
 from urllib.parse import urlparse, parse_qs
 
@@ -28,6 +29,7 @@ allowed_origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
+    allow_origin_regex=r"https://\d+-[a-z0-9.-]+\.manus\.computer$",
     allow_credentials=False,
     allow_methods=["GET", "OPTIONS"],
     allow_headers=["Range", "Content-Type", "Accept", "Origin"],
@@ -96,6 +98,36 @@ def clean_search_result(item: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def normalize_search_text(value: str) -> str:
+    plain = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode("ascii")
+    return re.sub(r"[^a-z0-9]+", " ", plain.casefold()).strip()
+
+
+def lexical_score(query: str, item: dict[str, Any]) -> int:
+    title = normalize_search_text(str(item.get("title") or item.get("name") or ""))
+    artist = normalize_search_text(
+        ", ".join(a.get("name", "") for a in item.get("artists", []) if isinstance(a, dict))
+    )
+    album_data = item.get("album") or {}
+    album = normalize_search_text(str(album_data.get("name") or ""))
+    full_query = normalize_search_text(query)
+    tokens = [token for token in full_query.split() if token]
+    haystack = " ".join((title, artist, album))
+    score = 0
+    if full_query in title:
+        score += 120
+    if full_query in artist:
+        score += 100
+    if full_query in album:
+        score += 90
+    score += sum(40 for token in tokens if token in title)
+    score += sum(35 for token in tokens if token in artist)
+    score += sum(25 for token in tokens if token in album)
+    if tokens and all(token in haystack for token in tokens):
+        score += 80
+    return score
+
+
 @app.get("/health")
 async def health() -> dict[str, str]:
     return {"status": "ok", "service": "vibra-music-api"}
@@ -108,6 +140,11 @@ async def search(
 ) -> dict[str, Any]:
     try:
         results = await asyncio.to_thread(get_ytmusic().search, q.strip(), filter="songs", limit=limit)
+        ranked = sorted(
+            enumerate(results),
+            key=lambda pair: (-lexical_score(q, pair[1]), pair[0]),
+        )
+        results = [item for _, item in ranked]
     except Exception as exc:
         raise HTTPException(status_code=502, detail=f"Music search failed: {exc}") from exc
     return {"query": q.strip(), "tracks": [clean_search_result(item) for item in results]}
@@ -121,6 +158,11 @@ async def resolve_stream(video_id: str) -> dict[str, Any]:
             "skip_download": True,
             "noplaylist": True,
             "format": "bestaudio/best",
+            "extractor_args": {
+                "youtube": {
+                    "player_client": ["android", "web"],
+                }
+            },
         }
         cookie_file = os.getenv("YOUTUBE_COOKIES_FILE")
         if cookie_file:
