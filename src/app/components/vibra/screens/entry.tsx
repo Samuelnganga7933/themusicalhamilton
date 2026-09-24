@@ -65,6 +65,7 @@ export function SplashScreen() {
 
 export function LoginScreen() {
   const { go, m, accent } = useVibra();
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
 
@@ -79,7 +80,7 @@ export function LoginScreen() {
       return;
     }
     setError("");
-    go("onboarding");
+    go(mode === "signin" ? "home" : "onboarding");
   };
 
   const showUnavailableMethod = (method: string) => {
@@ -99,12 +100,46 @@ export function LoginScreen() {
           haven't met yet.
         </h1>
         <p className="mt-4 max-w-[17rem] text-[14px]" style={{ color: "var(--v-text-2)", lineHeight: 1.55 }}>
-          Vibra learns how you listen and answers one question well — what should
-          I play right now?
+          Keep your music in one place, from first play to last track.
         </p>
       </motion.div>
 
       <motion.div {...m.riseIn(0.16)} className="space-y-3">
+        <div
+          className="grid grid-cols-2 gap-1 rounded-full p-1"
+          style={{ background: "var(--v-surface)", border: "1px solid var(--v-border)" }}
+          role="tablist"
+          aria-label="Account access"
+        >
+          {([
+            ["signin", "Sign in"],
+            ["signup", "Create account"],
+          ] as const).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              role="tab"
+              aria-selected={mode === value}
+              onClick={() => {
+                setMode(value);
+                setError("");
+              }}
+              className="rounded-full py-2.5 text-[13px]"
+              style={{
+                color: mode === value ? "#0B1B0F" : "var(--v-text-3)",
+                background: mode === value ? accent : "transparent",
+                fontWeight: mode === value ? 600 : 400,
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <p className="px-1 text-[13px]" style={{ color: "var(--v-text-2)" }}>
+          {mode === "signin" ? "Welcome back. Continue to your library." : "New here? Create an account, then personalize it if you want."}
+        </p>
+
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -156,7 +191,7 @@ export function LoginScreen() {
             whileTap={m.reduced ? undefined : { scale: 0.985 }}
             transition={{ duration: DUR.button, ease: EASE }}
           >
-            Continue with email
+            {mode === "signin" ? "Sign in with email" : "Create account with email"}
           </motion.button>
         </form>
 
@@ -212,9 +247,9 @@ const STEPS = [
     note: "We'll use these as a starting point, not a ceiling.",
   },
   {
-    kicker: "Step 3 of 3",
-    title: "When do you listen?",
-    note: "Moments on your Home screen adapt to this.",
+    kicker: "Step 3 of 3 · Optional",
+    title: "Set a listening moment",
+    note: "Choose a starting point, or skip setup and browse the app.",
   },
 ];
 
@@ -239,6 +274,8 @@ export function OnboardingScreen() {
     play("t1");
     go("home");
   };
+
+  const skipSetup = () => go("home");
 
   return (
     <div className="flex h-full flex-col">
@@ -378,7 +415,8 @@ export function OnboardingScreen() {
         )}
       </div>
 
-      <div className="flex items-center gap-3 px-7 pb-10 pt-4">
+      <div className="px-7 pb-8 pt-4">
+        <div className="flex items-center gap-3">
         {step > 0 && (
           <IconButton label="Previous step" onClick={() => setStep(step - 1)} size={52}>
             <span style={{ fontSize: 18, color: "var(--v-text-2)" }}>‹</span>
@@ -398,8 +436,17 @@ export function OnboardingScreen() {
           whileTap={m.reduced ? undefined : { scale: 0.985 }}
           transition={{ duration: DUR.button, ease: EASE }}
         >
-          {step === 2 ? "Start listening" : "Continue"}
+          {step === 2 ? "Finish setup" : "Next"}
         </motion.button>
+        </div>
+        <button
+          type="button"
+          onClick={skipSetup}
+          className="mt-4 w-full py-2 text-[13px]"
+          style={{ color: "var(--v-text-3)" }}
+        >
+          Skip setup for now
+        </button>
       </div>
     </div>
   );
