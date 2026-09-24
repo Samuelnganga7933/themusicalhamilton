@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { Compass, Home, Library, Search, User } from "lucide-react";
+import { ArrowLeft, ArrowRight, Compass, Home, Library, Search, User } from "lucide-react";
 import { useVibra, type Tab } from "./store";
 import { AmbientBackground } from "./ambient";
 import { MiniPlayer, NowPlaying } from "./player";
@@ -134,7 +134,7 @@ function TabBar({ platform }: { platform: Platform }) {
               <span
                 className="relative text-[10px]"
                 style={{
-                  color: on ? "var(--v-text)" : "var(--v-text-3)",
+                  color: on ? "var(--v-text)" : "var(--v-text-2)",
                   letterSpacing: platform === "android" ? "0.02em" : "0",
                 }}
               >
@@ -249,7 +249,7 @@ export function PhoneShell({ platform, fullScreen = false }: { platform: Platfor
  * wide reading area suitable for keyboard and pointer use.
  */
 export function WebShell() {
-  const { screen, resolvedTheme, accent, m, settings, go, tab, hasStarted } = useVibra();
+  const { screen, resolvedTheme, accent, m, settings, go, back, forward, canGoBack, canGoForward, tab, hasStarted } = useVibra();
   const Screen = SCREENS[screen];
   const entry = screen === "splash" || screen === "login" || screen === "onboarding";
   const activeLabel = TABS.find((item) => item.id === tab)?.label ?? "Vibra";
@@ -309,7 +309,7 @@ export function WebShell() {
                     aria-current={on ? "page" : undefined}
                     className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-[13px] transition-colors"
                     style={{
-                      color: on ? "var(--v-text)" : "var(--v-text-3)",
+                      color: on ? "var(--v-text)" : "var(--v-text-2)",
                       background: on ? `${accent}18` : "transparent",
                     }}
                   >
@@ -333,13 +333,37 @@ export function WebShell() {
           </aside>
           <main className="relative min-w-0 px-5 py-6 pb-32 sm:px-8 lg:px-12 lg:py-8">
             <header className="mx-auto flex max-w-[1080px] items-center justify-between gap-4">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.18em]" style={{ color: accent }}>
-                  {activeLabel}
-                </p>
-                <h1 className="mt-1 text-[26px] font-semibold tracking-[-0.03em] sm:text-[30px]">
-                  Find what to play next
-                </h1>
+              <div className="flex min-w-0 items-center gap-4">
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={back}
+                    disabled={!canGoBack}
+                    aria-label="Go back"
+                    className="grid h-9 w-9 place-items-center rounded-full transition-opacity disabled:opacity-30"
+                    style={{ background: "var(--v-card)", border: "1px solid var(--v-border)", color: "var(--v-text-2)" }}
+                  >
+                    <ArrowLeft size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={forward}
+                    disabled={!canGoForward}
+                    aria-label="Go forward"
+                    className="grid h-9 w-9 place-items-center rounded-full transition-opacity disabled:opacity-30"
+                    style={{ background: "var(--v-card)", border: "1px solid var(--v-border)", color: "var(--v-text-2)" }}
+                  >
+                    <ArrowRight size={16} />
+                  </button>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[11px] uppercase tracking-[0.18em]" style={{ color: accent }}>
+                    {activeLabel}
+                  </p>
+                  <h1 className="mt-1 text-[26px] font-semibold tracking-[-0.03em] sm:text-[30px]">
+                    Find what to play next
+                  </h1>
+                </div>
               </div>
               <button
                 type="button"

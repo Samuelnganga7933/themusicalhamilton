@@ -29,7 +29,7 @@ import { EqualiserBars } from "./track-row";
  * element so the artwork never re-renders mid-transition.
  */
 export function MiniPlayer() {
-  const { track, playing, toggle, next, progress, m, setNowPlayingOpen, nowPlayingOpen, accent, hasStarted } =
+  const { track, playing, toggle, prev, next, progress, m, setNowPlayingOpen, nowPlayingOpen, accent, hasStarted, shuffle, repeat, muted, toggleShuffle, toggleRepeat, toggleMuted } =
     useVibra();
 
   const pct = (progress / track.duration) * 100;
@@ -79,7 +79,21 @@ export function MiniPlayer() {
               </div>
             </button>
 
-            <div className="absolute right-2.5 top-1/2 flex -translate-y-1/2 items-center gap-1">
+            <div className="absolute right-2.5 top-1/2 flex -translate-y-1/2 items-center gap-0.5 sm:gap-1">
+              <div className="hidden items-center gap-0.5 sm:flex">
+                <IconButton label="Previous track" tone="bare" size={30} onClick={prev}>
+                  <SkipBack size={14} color="var(--v-text-2)" />
+                </IconButton>
+                <IconButton label="Shuffle" tone="bare" size={30} onClick={toggleShuffle}>
+                  <Shuffle size={14} color={shuffle ? accent : "var(--v-text-2)"} />
+                </IconButton>
+                <IconButton label={muted ? "Unmute" : "Mute"} tone="bare" size={30} onClick={toggleMuted}>
+                  <Volume2 size={14} color={muted ? accent : "var(--v-text-2)"} />
+                </IconButton>
+                <IconButton label="Repeat" tone="bare" size={30} onClick={toggleRepeat}>
+                  <Repeat size={14} color={repeat ? accent : "var(--v-text-2)"} />
+                </IconButton>
+              </div>
               <IconButton
                 label={playing ? "Pause" : "Play"}
                 tone="bare"
@@ -130,6 +144,12 @@ export function NowPlaying() {
     lyrics,
     lyricsLoading,
     lyricsError,
+    shuffle,
+    repeat,
+    muted,
+    toggleShuffle,
+    toggleRepeat,
+    toggleMuted,
   } = useVibra();
 
   const pct = (progress / track.duration) * 100;
@@ -168,9 +188,10 @@ export function NowPlaying() {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio || !audioUrl) return;
+    audio.muted = muted;
     if (playing) void audio.play().catch(() => undefined);
     else audio.pause();
-  }, [audioUrl, playing]);
+  }, [audioUrl, muted, playing]);
   const shareTrack = async () => {
     const shareData = {
       title: track.title,
@@ -330,8 +351,8 @@ export function NowPlaying() {
 
                 {/* Transport */}
                 <div className="mt-6 flex items-center justify-between">
-                  <IconButton label="Shuffle" tone="bare" size={40}>
-                    <Shuffle size={17} color="var(--v-text-2)" />
+                  <IconButton label="Shuffle" tone="bare" size={40} onClick={toggleShuffle}>
+                    <Shuffle size={17} color={shuffle ? accent : "var(--v-text-2)"} />
                   </IconButton>
                   <IconButton label="Previous track" tone="bare" size={48} onClick={prev}>
                     <SkipBack size={25} fill="var(--v-text)" color="var(--v-text)" />
@@ -346,14 +367,14 @@ export function NowPlaying() {
                   <IconButton label="Next track" tone="bare" size={48} onClick={next}>
                     <SkipForward size={25} fill="var(--v-text)" color="var(--v-text)" />
                   </IconButton>
-                  <IconButton label="Repeat" tone="bare" size={40}>
-                    <Repeat size={17} color="var(--v-text-2)" />
+                  <IconButton label="Repeat" tone="bare" size={40} onClick={toggleRepeat}>
+                    <Repeat size={17} color={repeat ? accent : "var(--v-text-2)"} />
                   </IconButton>
                 </div>
 
                 <div className="mt-7 flex items-center justify-between">
-                  <IconButton label="Volume" tone="bare" size={38}>
-                    <Volume2 size={17} color="var(--v-text-3)" />
+                  <IconButton label={muted ? "Unmute" : "Mute"} tone="bare" size={38} onClick={toggleMuted}>
+                    <Volume2 size={17} color={muted ? accent : "var(--v-text-2)"} />
                   </IconButton>
                   <p className="text-[12px]" style={{ color: "var(--v-text-3)" }}>
                     {track.because}

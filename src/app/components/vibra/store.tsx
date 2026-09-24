@@ -101,11 +101,18 @@ interface Store {
 
   screen: Screen;
   go: (screen: Screen) => void;
+  back: () => void;
+  forward: () => void;
+  canGoBack: boolean;
+  canGoForward: boolean;
   tab: Tab;
 
   track: Track;
   playing: boolean;
   progress: number; // seconds
+  shuffle: boolean;
+  repeat: boolean;
+  muted: boolean;
   liked: Record<string, boolean>;
   queue: Track[];
   hasStarted: boolean;
@@ -116,6 +123,9 @@ interface Store {
 
   play: (trackOrId?: Track | string) => void;
   toggle: () => void;
+  toggleShuffle: () => void;
+  toggleRepeat: () => void;
+  toggleMuted: () => void;
   next: () => void;
   prev: () => void;
   seek: (seconds: number) => void;
@@ -153,9 +163,14 @@ export function VibraProvider({ children }: { children: ReactNode }) {
   const [osReduced, setOsReduced] = useState(false);
 
   const [screen, setScreen] = useState<Screen>("splash");
+  const [history, setHistory] = useState<Screen[]>(["splash"]);
+  const [historyIndex, setHistoryIndex] = useState(0);
   const [track, setTrack] = useState<Track>(TRACKS[0]);
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [shuffle, setShuffle] = useState(false);
+  const [repeat, setRepeat] = useState(false);
+  const [muted, setMuted] = useState(false);
   const [liked, setLiked] = useState<Record<string, boolean>>({ t3: true, t7: true });
   const [queue, setQueueState] = useState<Track[]>(TRACKS.slice(1, 6));
   const [hasStarted, setHasStarted] = useState(false);
@@ -282,10 +297,31 @@ export function VibraProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const go = useCallback((next: Screen) => {
+    if (next === history[historyIndex]) return;
     setScreen(next);
+    setHistory((items) => [...items.slice(0, historyIndex + 1), next]);
+    setHistoryIndex((index) => index + 1);
     setNowPlayingOpen(false);
     setQueueOpen(false);
-  }, []);
+  }, [history, historyIndex]);
+
+  const back = useCallback(() => {
+    if (historyIndex === 0) return;
+    const nextIndex = historyIndex - 1;
+    setHistoryIndex(nextIndex);
+    setScreen(history[nextIndex]);
+    setNowPlayingOpen(false);
+    setQueueOpen(false);
+  }, [history, historyIndex]);
+
+  const forward = useCallback(() => {
+    if (historyIndex >= history.length - 1) return;
+    const nextIndex = historyIndex + 1;
+    setHistoryIndex(nextIndex);
+    setScreen(history[nextIndex]);
+    setNowPlayingOpen(false);
+    setQueueOpen(false);
+  }, [history, historyIndex]);
 
   const value: Store = {
     settings,
@@ -297,10 +333,17 @@ export function VibraProvider({ children }: { children: ReactNode }) {
     bgActive: !settings.batterySaver && !reduced && settings.motion > 0.02,
     screen,
     go,
+    back,
+    forward,
+    canGoBack: historyIndex > 0,
+    canGoForward: historyIndex < history.length - 1,
     tab: TAB_FOR[screen] ?? "home",
     track,
     playing,
     progress,
+    shuffle,
+    repeat,
+    muted,
     liked,
     queue,
     hasStarted,
@@ -313,6 +356,9 @@ export function VibraProvider({ children }: { children: ReactNode }) {
       setPlaying((p) => !p);
       setHasStarted(true);
     },
+    toggleShuffle: () => setShuffle((value) => !value),
+    toggleRepeat: () => setRepeat((value) => !value),
+    toggleMuted: () => setMuted((value) => !value),
     next,
     prev,
     seek: setProgress,

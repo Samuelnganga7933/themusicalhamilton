@@ -31,7 +31,7 @@ export function AppearanceScreen() {
   const { m, go, settings, set, accent } = useVibra();
 
   return (
-    <div className="pb-10">
+    <div className="pb-36">
       <ScreenHeader kicker="Appearance" title="Make it yours" onBack={() => go("profile")} />
 
       <div className="mt-6 space-y-8 px-6">
@@ -238,7 +238,7 @@ export function BackgroundScreen() {
   const { m, go, settings, set, accent, bgActive } = useVibra();
 
   return (
-    <div className="pb-10">
+    <div className="pb-36">
       <ScreenHeader kicker="Background" title="Set the room" onBack={() => go("profile")} />
 
       <div className="mt-6 space-y-8 px-6">
