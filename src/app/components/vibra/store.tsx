@@ -57,7 +57,7 @@ export interface Settings {
 
 const DEFAULT_SETTINGS: Settings = {
   theme: "dark",
-  accent: "green",
+  accent: "red",
   customAccent: "#C9A961",
   background: "gradient",
   scene: "rain",

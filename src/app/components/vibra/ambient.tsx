@@ -81,7 +81,7 @@ const SCENES: Record<VideoScene, Layer[]> = {
   ],
   aurora: [
     {
-      css: "radial-gradient(100% 60% at 25% 15%, rgba(52,199,89,0.20) 0%, transparent 62%)",
+      css: "radial-gradient(100% 60% at 25% 15%, rgba(216,82,76,0.20) 0%, transparent 62%)",
       period: 74,
       drift: [6, 5],
       scale: [1, 1.12],

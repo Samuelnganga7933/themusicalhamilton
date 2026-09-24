@@ -219,7 +219,7 @@ function WorldSection() {
 /* ── Section: New This Week ───────────────────────────────────────────── */
 
 function NewThisWeek() {
-  const { play, m, settings } = useVibra();
+  const { play, m, settings, accent } = useVibra();
   const tracks = ["t8", "t1", "t5", "t2"].map(trackById);
 
   return (
@@ -294,9 +294,9 @@ function NewThisWeek() {
                 <span
                   className="rounded-full px-2 py-0.5 text-[10px]"
                   style={{
-                    background: "rgba(52,199,89,0.12)",
-                    color: "#34C759",
-                    border: "1px solid rgba(52,199,89,0.2)",
+                    background: `${accent}1F`,
+                    color: accent,
+                    border: `1px solid ${accent}33`,
                     letterSpacing: "0.04em",
                   }}
                 >
