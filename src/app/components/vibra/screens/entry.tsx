@@ -66,6 +66,25 @@ export function SplashScreen() {
 export function LoginScreen() {
   const { go, m, accent } = useVibra();
   const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+
+  const submitEmail = () => {
+    const value = email.trim();
+    if (!value) {
+      setError("Enter your email address to continue.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(value)) {
+      setError("Enter a valid email address, like you@email.com.");
+      return;
+    }
+    setError("");
+    go("onboarding");
+  };
+
+  const showUnavailableMethod = (method: string) => {
+    setError(`${method} sign-in is not connected yet. Use your email to continue.`);
+  };
 
   return (
     <div className="flex h-full flex-col justify-end px-7 pb-10">
@@ -86,35 +105,60 @@ export function LoginScreen() {
       </motion.div>
 
       <motion.div {...m.riseIn(0.16)} className="space-y-3">
-        <Inset className="flex items-center gap-3 px-4" style={{ height: 54 }}>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            submitEmail();
+          }}
+          noValidate
+          className="space-y-3"
+        >
+          <Inset
+            className="flex items-center gap-3 px-4"
+            style={{
+              height: 54,
+              border: error ? "1px solid #D9822B" : undefined,
+            }}
+          >
           <Mail size={17} color="var(--v-text-3)" />
           <input
             type="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (error) setError("");
+            }}
             placeholder="you@email.com"
             aria-label="Email address"
+            aria-invalid={Boolean(error)}
+            autoComplete="email"
             className="w-full bg-transparent text-[15px] outline-none"
             style={{ color: "var(--v-text)" }}
           />
-        </Inset>
+          </Inset>
 
-        <motion.button
-          type="button"
-          onClick={() => go("onboarding")}
-          className="grid w-full place-items-center text-[15px]"
-          style={{
-            height: 54,
-            borderRadius: 999,
-            background: accent,
-            color: "#0B1B0F",
-            boxShadow: `0 10px 26px ${accent}3D`,
-          }}
-          whileTap={m.reduced ? undefined : { scale: 0.985 }}
-          transition={{ duration: DUR.button, ease: EASE }}
-        >
-          Continue
-        </motion.button>
+          {error && (
+            <p role="alert" className="px-1 text-[12px]" style={{ color: "#D9822B" }}>
+              {error}
+            </p>
+          )}
+
+          <motion.button
+            type="submit"
+            className="grid w-full place-items-center text-[15px]"
+            style={{
+              height: 54,
+              borderRadius: 999,
+              background: accent,
+              color: "#0B1B0F",
+              boxShadow: `0 10px 26px ${accent}3D`,
+            }}
+            whileTap={m.reduced ? undefined : { scale: 0.985 }}
+            transition={{ duration: DUR.button, ease: EASE }}
+          >
+            Continue with email
+          </motion.button>
+        </form>
 
         <div className="flex items-center gap-3 py-1">
           <span className="h-px flex-1" style={{ background: "var(--v-border)" }} />
@@ -132,7 +176,7 @@ export function LoginScreen() {
             <motion.button
               key={p.label}
               type="button"
-              onClick={() => go("onboarding")}
+              onClick={() => showUnavailableMethod(p.glyph)}
               aria-label={p.label}
               className="v-raised-soft grid flex-1 place-items-center"
               style={{ height: 52, borderRadius: 999 }}
