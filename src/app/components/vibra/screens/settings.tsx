@@ -333,7 +333,11 @@ export function BackgroundScreen() {
             <div className="px-5 py-4" style={{ borderBottom: "1px solid var(--v-border)" }}>
               <Slider label="Motion intensity" value={settings.motion} onChange={(v) => set("motion", v)} />
             </div>
-            <Row title="Dim while reading" note="Automatic" right={<Switch checked label="Dim while reading" onChange={() => {}} />} />
+            <Row
+              title="Dim while reading"
+              note="Automatic while you scroll"
+              right={<span className="text-[12px]" style={{ color: "var(--v-text-3)" }}>On</span>}
+            />
             <Row
               title="Pause in battery saver"
               note={bgActive ? "Currently playing" : "Currently paused"}

@@ -128,6 +128,18 @@ export function NowPlaying() {
 
   const pct = (progress / track.duration) * 100;
   const isLiked = Boolean(liked[track.id]);
+  const shareTrack = async () => {
+    const shareData = {
+      title: track.title,
+      text: `${track.title} · ${track.artist}`,
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      await navigator.share(shareData).catch(() => undefined);
+      return;
+    }
+    await navigator.clipboard?.writeText(`${shareData.text} — ${shareData.url}`).catch(() => undefined);
+  };
 
   return (
     <AnimatePresence>
@@ -187,7 +199,7 @@ export function NowPlaying() {
                     {track.album}
                   </p>
                 </div>
-                <IconButton label="Share track" tone="bare" onClick={() => {}}>
+                <IconButton label="Share track" tone="bare" onClick={shareTrack}>
                   <Share2 size={17} color="var(--v-text-2)" />
                 </IconButton>
               </div>

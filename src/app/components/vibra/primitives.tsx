@@ -205,7 +205,7 @@ export function Skeleton({
   return <div className={`v-shimmer ${className}`} style={{ borderRadius: radius, ...style }} />;
 }
 
-/** Small pill used for AI readings and metadata. */
+/** Small pill used for editorial notes and metadata. */
 export function Pill({
   children,
   tone = "muted",

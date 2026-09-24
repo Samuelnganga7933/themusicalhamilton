@@ -294,7 +294,7 @@ export function WebShell() {
               <span>
                 <span className="block text-[17px] font-semibold tracking-tight">Vibra</span>
                 <span className="block text-[11px]" style={{ color: "var(--v-text-3)" }}>
-                  AI-native discovery
+                  Music discovery
                 </span>
               </span>
             </button>

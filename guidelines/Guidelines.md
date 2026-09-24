@@ -1,11 +1,11 @@
 # Vibra — design guidelines
 
-An AI-native music discovery app. Playback is familiar; discovery is the product.
+Vibra is a music discovery and listening app. Playback is familiar; discovery is the product.
 The tone to hold: **premium, editorial, minimal, calm.** Closer to Apple Music,
 Nothing OS, Linear and Arc than to anything that glows.
 
 Explicitly out of bounds: purple gradients, cyan glows, cyberpunk, gaming UI,
-chat interfaces, AI orbs, listening analytics, Wrapped-style recaps.
+chat interfaces, listening analytics, Wrapped-style recaps, and unrelated social clutter.
 
 ## Ground and colour
 
@@ -60,7 +60,7 @@ and `motionKit`; never invent a duration inline.
 | Backgrounds | 700–1200ms |
 
 Rules: cards lift and settle, buttons depress to ~0.98, artwork settles from 98%
-to 100%, lists stagger by ~55ms, AI interpretations crossfade rather than pop,
+to 100%, lists stagger by ~55ms, search result summaries crossfade rather than pop,
 Now Playing grows out of the mini player via a shared `layoutId="player-art"`.
 Loading is always skeleton + shimmer, never a spinner. Errors and empty states
 fade in with a quiet glyph and one explanatory line — never a shake.

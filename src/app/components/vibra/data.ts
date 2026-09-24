@@ -13,7 +13,7 @@ export interface Track {
   art: string;
   /** Dominant artwork colour — drives the adaptive Now Playing background. */
   tone: string;
-  /** Why Vibra surfaced this. Shown as AI reasoning, never as chat. */
+  /** Editorial context shown alongside the track. */
   because: string;
 }
 
@@ -207,9 +207,9 @@ export const DISCOVER_SECTIONS: Section[] = [
     trackIds: [],
   },
   {
-    id: "ai",
-    title: "AI Picks",
-    kicker: "Built from 214 listens this month",
+    id: "editors-picks",
+    title: "Editor's Picks",
+    kicker: "Chosen by the Vibra desk",
     layout: "grid",
     trackIds: ["t7", "t2", "t4", "t6"],
   },
@@ -232,35 +232,35 @@ export const EDITORIAL: Record<string, string> = {
 
 export interface SearchExample {
   query: string;
-  reading: string;
+  summary: string;
   trackIds: string[];
 }
 
-/** Natural-language searches, each with the app's plain-language interpretation. */
+/** Example music searches with concise descriptions of the result set. */
 export const SEARCH_EXAMPLES: SearchExample[] = [
   {
     query: "Songs like Tems",
-    reading: "Warm alté vocals · restrained drums · Lagos-adjacent production",
+    summary: "Warm alté vocals · restrained drums · Lagos-adjacent production",
     trackIds: ["t2", "t1", "t6"],
   },
   {
     query: "Music for studying",
-    reading: "Instrumental · 60–80 bpm · no sudden dynamics",
+    summary: "Instrumental · 60–80 bpm · no sudden dynamics",
     trackIds: ["t5", "t7", "t4"],
   },
   {
     query: "Late-night jazz",
-    reading: "Acoustic quartets · recorded after midnight · upright bass forward",
+    summary: "Acoustic quartets · recorded after midnight · upright bass forward",
     trackIds: ["t7", "t3", "t5"],
   },
   {
     query: "Artists before they blow up",
-    reading: "Under 10k listeners · rising 40%+ this month",
+    summary: "Under 10k listeners · rising 40%+ this month",
     trackIds: ["t6", "t8", "t2"],
   },
   {
     query: "Something for a long drive at dusk",
-    reading: "Mid-tempo · wide stereo · 4+ minute runtimes",
+    summary: "Mid-tempo · wide stereo · 4+ minute runtimes",
     trackIds: ["t4", "t1", "t8"],
   },
 ];

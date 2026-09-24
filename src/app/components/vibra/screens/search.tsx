@@ -7,10 +7,7 @@ import { Inset, Skeleton } from "../primitives";
 import { TrackRow } from "../track-row";
 import { DUR, EASE } from "../motion";
 
-/**
- * Natural-language search. The app shows its reading of the query as a quiet
- * line of text that crossfades — no chat bubbles, no assistant persona.
- */
+/** Music search with support for track, artist, album, and mood terms. */
 export function SearchScreen() {
   const { m, accent, settings } = useVibra();
   const [query, setQuery] = useState("");
@@ -32,10 +29,10 @@ export function SearchScreen() {
     );
     return {
       query: committed,
-      reading:
+      summary:
         hits.length > 0
           ? `Matched on title, artist and album · ${hits.length} result${hits.length > 1 ? "s" : ""}`
-          : "Read as a mood · tempo and texture weighted over keywords",
+          : "No exact match · try an artist, track, album, or mood",
       trackIds: (hits.length ? hits : TRACKS.slice(0, 3)).map((t) => t.id),
     };
   }, [committed]);
@@ -60,7 +57,7 @@ export function SearchScreen() {
           className="text-[11px] uppercase"
           style={{ color: "var(--v-text-3)", letterSpacing: "0.16em" }}
         >
-          Natural language
+            Music search
         </p>
         <h1
           className="mt-2"
@@ -79,7 +76,7 @@ export function SearchScreen() {
           className="mt-2 text-[14px]"
           style={{ color: "var(--v-text-2)", lineHeight: 1.55 }}
         >
-          Just describe what you want to hear.
+          Search by track, artist, album, or mood.
         </p>
       </motion.div>
 
@@ -109,8 +106,8 @@ export function SearchScreen() {
               onKeyDown={(e) => {
                 if (e.key === "Enter" && query.trim()) run(query.trim());
               }}
-              placeholder="Late-night jazz, songs like Tems…"
-              aria-label="Search music in your own words"
+              placeholder="Search tracks, artists, albums…"
+              aria-label="Search music"
               className="w-full bg-transparent text-[16px] outline-none"
               style={{ color: "var(--v-text)" }}
             />
@@ -141,12 +138,12 @@ export function SearchScreen() {
         </motion.div>
       </motion.div>
 
-      {/* ── AI interpretation strip ───────────────────────────────────── */}
+      {/* ── Search summary strip ───────────────────────────────────────── */}
       <div className="min-h-[44px] px-5">
         <AnimatePresence mode="wait">
           {match && (
             <motion.div
-              key={match.reading}
+              key={match.summary}
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
@@ -164,13 +161,13 @@ export function SearchScreen() {
                   className="text-[10px] uppercase"
                   style={{ color: accent, letterSpacing: "0.16em", opacity: 0.8 }}
                 >
-                  Understood as
+                  Search results
                 </p>
                 <p
                   className="mt-1.5 text-[14px]"
                   style={{ color: "var(--v-text)", lineHeight: 1.5, letterSpacing: "-0.01em" }}
                 >
-                  {match.reading}
+                  {match.summary}
                 </p>
               </div>
             </motion.div>
@@ -187,7 +184,7 @@ export function SearchScreen() {
               className="px-5 text-[11px] uppercase"
               style={{ color: "var(--v-text-3)", letterSpacing: "0.16em" }}
             >
-              Try asking for
+              Try searching for
             </p>
 
             <div className="mt-4 space-y-2 px-5">
@@ -225,7 +222,7 @@ export function SearchScreen() {
                         className="mt-0.5 truncate text-[12px]"
                         style={{ color: "var(--v-text-3)" }}
                       >
-                        {e.reading.split(" · ")[0]}
+                        {e.summary.split(" · ")[0]}
                       </p>
                     </div>
                     <span

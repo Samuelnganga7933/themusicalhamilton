@@ -77,7 +77,13 @@ export function ProfileScreen() {
           />
           <Row
             title="Downloads over Wi-Fi only"
-            right={<Switch checked label="Downloads over Wi-Fi only" onChange={() => {}} />}
+            right={
+              <Switch
+                checked={settings.downloadsWifiOnly}
+                label="Downloads over Wi-Fi only"
+                onChange={(v) => set("downloadsWifiOnly", v)}
+              />
+            }
           />
           <Row
             title="Battery saver"

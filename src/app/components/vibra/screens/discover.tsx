@@ -482,9 +482,9 @@ function EditorsSection() {
   );
 }
 
-/* ── Section: AI Picks ────────────────────────────────────────────────── */
+/* ── Section: Editor's Picks ─────────────────────────────────────────── */
 
-function AISection() {
+function EditorsPicksSection() {
   const { play, m, accent, settings } = useVibra();
   const tracks = ["t7", "t2", "t4", "t6"].map(trackById);
 
@@ -509,7 +509,7 @@ function AISection() {
               fontFamily: "'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif",
             }}
           >
-            AI Picks
+            Editor's Picks
           </h2>
         </div>
       </div>
@@ -591,7 +591,7 @@ export function DiscoverScreen() {
       <NewThisWeek />
       <GenresSection />
       <EditorsSection />
-      <AISection />
+      <EditorsPicksSection />
     </div>
   );
 }

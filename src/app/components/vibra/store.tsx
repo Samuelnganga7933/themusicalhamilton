@@ -51,6 +51,7 @@ export interface Settings {
   compact: boolean;
   largeText: boolean;
   batterySaver: boolean;
+  downloadsWifiOnly: boolean;
 }
 
 const DEFAULT_SETTINGS: Settings = {
@@ -67,6 +68,7 @@ const DEFAULT_SETTINGS: Settings = {
   compact: false,
   largeText: false,
   batterySaver: false,
+  downloadsWifiOnly: true,
 };
 
 // ─── Player ──────────────────────────────────────────────────────────────────
