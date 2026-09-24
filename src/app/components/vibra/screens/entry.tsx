@@ -64,7 +64,7 @@ export function SplashScreen() {
 // ─── Login ───────────────────────────────────────────────────────────────────
 
 export function LoginScreen() {
-  const { go, m, accent } = useVibra();
+  const { go, m, accent, signIn, signUp } = useVibra();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -80,6 +80,8 @@ export function LoginScreen() {
       return;
     }
     setError("");
+    if (mode === "signin") signIn(value);
+    else signUp(value);
     go(mode === "signin" ? "home" : "onboarding");
   };
 
@@ -261,7 +263,7 @@ const TIMES = [
 ];
 
 export function OnboardingScreen() {
-  const { go, m, accent, play } = useVibra();
+  const { go, m, accent, play, updateUserPreferences } = useVibra();
   const [step, setStep] = useState(0);
   const [tastes, setTastes] = useState<string[]>(["Alté", "Ambient Jazz"]);
   const [artists, setArtists] = useState<string[]>(["a1"]);
@@ -270,12 +272,18 @@ export function OnboardingScreen() {
   const toggle = (list: string[], setList: (v: string[]) => void, value: string) =>
     setList(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
 
+  const savePreferences = () => updateUserPreferences({ tastes, artists, listeningTimes: times });
+
   const finish = () => {
+    savePreferences();
     play("t1");
     go("home");
   };
 
-  const skipSetup = () => go("home");
+  const skipSetup = () => {
+    savePreferences();
+    go("home");
+  };
 
   return (
     <div className="flex h-full flex-col">

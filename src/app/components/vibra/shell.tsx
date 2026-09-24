@@ -249,7 +249,7 @@ export function PhoneShell({ platform, fullScreen = false }: { platform: Platfor
  * wide reading area suitable for keyboard and pointer use.
  */
 export function WebShell() {
-  const { screen, resolvedTheme, accent, m, settings, go, back, forward, canGoBack, canGoForward, tab, hasStarted } = useVibra();
+  const { screen, resolvedTheme, accent, m, settings, go, back, forward, canGoBack, canGoForward, tab, hasStarted, user } = useVibra();
   const Screen = SCREENS[screen];
   const entry = screen === "splash" || screen === "login" || screen === "onboarding";
   const activeLabel = TABS.find((item) => item.id === tab)?.label ?? "Vibra";
@@ -375,7 +375,7 @@ export function WebShell() {
                   color: "var(--v-text-2)",
                 }}
               >
-                Account
+                {user?.displayName ?? "Account"}
               </button>
             </header>
             <AnimatePresence mode="wait">

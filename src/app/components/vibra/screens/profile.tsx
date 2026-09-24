@@ -3,31 +3,39 @@ import { ChevronRight, Palette, Wallpaper } from "lucide-react";
 import { useVibra } from "../store";
 import { PLAYLISTS } from "../data";
 import { Art, Card, Row, SectionTitle, Switch } from "../primitives";
-import { ImageWithFallback } from "../../figma/ImageWithFallback";
 
 export function ProfileScreen() {
-  const { m, go, settings, set, accent } = useVibra();
+  const { m, go, settings, set, accent, user, signOut } = useVibra();
+  const displayName = user?.displayName ?? "Vibra listener";
+  const initials = displayName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+  const joinedYear = user ? new Date(user.joinedAt).getFullYear() : new Date().getFullYear();
 
   return (
     <div className="space-y-9 pb-10">
       <motion.div className="px-6 pt-3" {...m.riseIn(0)}>
         <div className="flex items-center gap-4">
           <div
-            className="overflow-hidden rounded-full"
-            style={{ width: 68, height: 68, boxShadow: "0 8px 20px var(--v-shade)" }}
+            className="grid place-items-center overflow-hidden rounded-full text-[22px] font-semibold"
+            style={{ width: 68, height: 68, color: "#fff", background: accent, boxShadow: "0 8px 20px var(--v-shade)" }}
+            aria-label={`${displayName} profile avatar`}
           >
-            <ImageWithFallback
-              src="https://images.unsplash.com/photo-1628345868536-de082a3babf5?w=200&h=200&fit=crop&auto=format&q=80"
-              alt="Your profile photo"
-              className="h-full w-full object-cover"
-            />
+            {initials || "V"}
           </div>
           <div>
             <h1 className="text-[26px]" style={{ color: "var(--v-text)", lineHeight: 1.15, fontWeight: 600 }}>
-              Amara Bello
+              {displayName}
             </h1>
             <p className="mt-0.5 text-[13px]" style={{ color: "var(--v-text-3)" }}>
-              @amarab · Vibra since 2024
+              {user?.handle ?? "@listener"} · Vibra since {joinedYear}
+            </p>
+            <p className="mt-1 text-[12px]" style={{ color: "var(--v-text-2)" }}>
+              {user?.email ?? "Sign in to personalize your account"}
             </p>
           </div>
         </div>
@@ -55,6 +63,16 @@ export function ProfileScreen() {
       <motion.section {...m.riseIn(0.14)} className="px-6">
         <SectionTitle title="Settings" kicker="Account & app" />
         <Card className="mt-4 overflow-hidden">
+          <Row
+            title="Email"
+            note={user?.email ?? "Not connected"}
+            last={false}
+          />
+          <Row
+            title="Music profile"
+            note={user?.tastes.length ? user.tastes.slice(0, 3).join(" · ") : "Choose artists and genres during setup"}
+            last={false}
+          />
           <Row
             title="Appearance"
             note={`${labelFor(settings.theme)} · ${capitalise(settings.accent)} accent`}
@@ -121,7 +139,10 @@ export function ProfileScreen() {
 
         <button
           type="button"
-          onClick={() => go("login")}
+          onClick={() => {
+            signOut();
+            go("login");
+          }}
           className="mt-6 w-full py-4 text-center text-[14px]"
           style={{ color: "var(--v-text-3)" }}
         >

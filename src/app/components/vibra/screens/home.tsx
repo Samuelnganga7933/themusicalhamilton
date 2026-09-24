@@ -222,7 +222,7 @@ function DestinationTile({
 /* ── Main screen ──────────────────────────────────────────────────────── */
 
 export function HomeScreen() {
-  const { m, go, play, accent, settings } = useVibra();
+  const { m, go, play, accent, settings, user } = useVibra();
   const [openDest, setOpenDest] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -251,7 +251,7 @@ export function HomeScreen() {
           Thursday · August 2026
         </p>
 
-        <h1
+          <h1
           className="mt-2"
           style={{
             fontSize: 36,
@@ -262,7 +262,9 @@ export function HomeScreen() {
             fontFamily: "'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif",
           }}
         >
-          {GREETING()}
+            {user?.displayName
+              ? `${GREETING().replace(/\.$/, "")}, ${user.displayName.split(" ")[0]}.`
+              : GREETING()}
           <br />
           <span
             style={{

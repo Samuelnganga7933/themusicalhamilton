@@ -55,6 +55,16 @@ export interface Settings {
   downloadsWifiOnly: boolean;
 }
 
+export interface VibraUser {
+  email: string;
+  displayName: string;
+  handle: string;
+  joinedAt: string;
+  tastes: string[];
+  artists: string[];
+  listeningTimes: string[];
+}
+
 const DEFAULT_SETTINGS: Settings = {
   theme: "dark",
   accent: "red",
@@ -89,6 +99,11 @@ export type Screen =
 export type Tab = "home" | "discover" | "search" | "library" | "profile";
 
 interface Store {
+  user: VibraUser | null;
+  signIn: (email: string) => void;
+  signUp: (email: string) => void;
+  updateUserPreferences: (preferences: Partial<Pick<VibraUser, "tastes" | "artists" | "listeningTimes">>) => void;
+  signOut: () => void;
   settings: Settings;
   set: <K extends keyof Settings>(key: K, value: Settings[K]) => void;
   resolvedTheme: ResolvedTheme;
@@ -158,6 +173,14 @@ const TAB_FOR: Partial<Record<Screen, Tab>> = {
 };
 
 export function VibraProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<VibraUser | null>(() => {
+    try {
+      const stored = window.localStorage.getItem("vibra-user");
+      return stored ? (JSON.parse(stored) as VibraUser) : null;
+    } catch {
+      return null;
+    }
+  });
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [systemDark, setSystemDark] = useState(true);
   const [osReduced, setOsReduced] = useState(false);
@@ -201,6 +224,57 @@ export function VibraProvider({ children }: { children: ReactNode }) {
   const set = useCallback(<K extends keyof Settings>(key: K, value: Settings[K]) => {
     setSettings((s) => ({ ...s, [key]: value }));
   }, []);
+
+  const persistUser = useCallback((next: VibraUser | null) => {
+    setUser(next);
+    if (next) window.localStorage.setItem("vibra-user", JSON.stringify(next));
+    else window.localStorage.removeItem("vibra-user");
+  }, []);
+
+  const createUser = useCallback((email: string): VibraUser => {
+    const localPart = email.split("@")[0].replace(/[._-]+/g, " ").trim();
+    const displayName = localPart
+      .split(" ")
+      .filter(Boolean)
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ") || "Vibra listener";
+    return {
+      email,
+      displayName,
+      handle: `@${localPart.replace(/\s+/g, "").toLowerCase() || "listener"}`,
+      joinedAt: new Date().toISOString(),
+      tastes: [],
+      artists: [],
+      listeningTimes: [],
+    };
+  }, []);
+
+  const signIn = useCallback((email: string) => {
+    let existing: VibraUser | null = null;
+    try {
+      const stored = window.localStorage.getItem("vibra-user");
+      existing = stored ? (JSON.parse(stored) as VibraUser) : null;
+    } catch {
+      existing = null;
+    }
+    persistUser(existing?.email.toLowerCase() === email.toLowerCase() ? existing : createUser(email));
+  }, [createUser, persistUser]);
+
+  const signUp = useCallback((email: string) => persistUser(createUser(email)), [createUser, persistUser]);
+
+  const updateUserPreferences = useCallback(
+    (preferences: Partial<Pick<VibraUser, "tastes" | "artists" | "listeningTimes">>) => {
+      setUser((current) => {
+        if (!current) return current;
+        const next = { ...current, ...preferences };
+        window.localStorage.setItem("vibra-user", JSON.stringify(next));
+        return next;
+      });
+    },
+    [],
+  );
+
+  const signOut = useCallback(() => persistUser(null), [persistUser]);
 
   const resolvedTheme: ResolvedTheme =
     settings.theme === "system" ? (systemDark ? "dark" : "light") : settings.theme;
@@ -324,6 +398,11 @@ export function VibraProvider({ children }: { children: ReactNode }) {
   }, [history, historyIndex]);
 
   const value: Store = {
+    user,
+    signIn,
+    signUp,
+    updateUserPreferences,
+    signOut,
     settings,
     set,
     resolvedTheme,
