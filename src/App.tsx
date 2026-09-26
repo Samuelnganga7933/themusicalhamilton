@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useRef,useState,type ReactNode} from "react";
+import AuthGate from "./AuthGate";
 import {BarChart3,ChevronLeft,Compass,Heart,Library,ListMusic,Menu,UserRound,Search,Plus,X,Radio,Disc3,Clock3,Globe2,Music2,Play,Pause,Volume2,SkipBack,SkipForward,Mic2,AlignLeft,ExternalLink,LoaderCircle} from "lucide-react";
 
 type Track={id:string;title:string;artist:string;album:string;cover:string;previewUrl:string;duration:number;genre:string;releaseDate?:string};
@@ -43,5 +44,4 @@ function ProfilePage({liked,navigate,time,timezone}:{liked:Track[];navigate:(to:
 function SectionTitle({kicker,title}:{kicker:string;title:string}){return <div className="section-title"><div><span>{kicker}</span><h2>{title}</h2></div></div>}
 function PageShell({title,eyebrow,children}:{title:string;eyebrow:string;children:ReactNode}){return <div className="content page-shell"><button className="back" onClick={()=>history.back()}><ChevronLeft size={16}/> Back</button><span className="kicker">{eyebrow}</span><h1>{title}</h1>{children}</div>}
 function EmptyPage({icon,title,text}:{icon:ReactNode;title:string;text:string}){return <div className="empty"><div className="empty-icon">{icon}</div><h2>{title}</h2><p>{text}</p></div>}
-import AuthGate from "./AuthGate";
 export default function App(){return <AuthGate><MusicApp/></AuthGate>}
