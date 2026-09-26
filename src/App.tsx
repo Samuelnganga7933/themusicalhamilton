@@ -35,7 +35,7 @@ function Vibra(){
  <main className="main-area"><header className="app-topbar"><button className="mobile-menu-button" onClick={()=>setMobileNav(!mobileNav)}><Menu size={20}/></button><div className="history-buttons"><button onClick={()=>history.back()} aria-label="Go back"><ArrowLeft size={17}/></button><button onClick={()=>history.forward()} aria-label="Go forward"><ArrowRight size={17}/></button></div><form className="global-search" onSubmit={e=>{e.preventDefault();void search(term)}}><Search size={18}/><input value={term} onChange={e=>setTerm(e.target.value)} placeholder="What do you want to play?" aria-label="Search songs, artists and albums"/>{term&&<button type="button" onClick={()=>{setTerm("");setResults([]);go("/search")}} aria-label="Clear search"><X size={16}/></button>}<kbd>↵</kbd></form><div className="topbar-time"><span>{clock.time}</span><small>{clock.zone}</small></div><button className="top-avatar" onClick={()=>go("/library")} aria-label="Your library"><Library size={17}/></button></header>
  <div className="workspace">
  <section className="primary-view">
- {path==="/"&&<HomeView greeting={clock.greeting} onSearch={openSearch} liked={liked} playlists={playlists} play={play} current={current} go={go}/>}
+ {path==="/"&&<HomeView greeting={clock.greeting} onSearch={openSearch} liked={liked} like={like} playlists={playlists} play={play} current={current} go={go}/>}
  {path.startsWith("/discover")&&<DiscoverView onSearch={openSearch} play={play} current={current}/>}
  {path.startsWith("/search")&&<SearchView term={term} setTerm={setTerm} submit={()=>void search(term)} results={results} busy={busy} error={searchError} current={current} liked={liked} like={like} play={play} onPlaylist={setPlaylistTarget} onSearch={openSearch}/>}
  {path==="/library"&&<LibraryView liked={liked} play={play} current={current} like={like} onPlaylist={setPlaylistTarget} playlists={playlists} onCreate={()=>setCreateOpen(true)} go={go}/>}
@@ -53,7 +53,7 @@ function Vibra(){
  {toast&&<div className="toast"><Check size={16}/>{toast}</div>}
  </div>
 }
-function HomeView({greeting,onSearch,liked,playlists,play,current,go}:{greeting:string;onSearch:(s:string)=>void;liked:Track[];playlists:Playlist[];play:(t:Track,list?:Track[])=>void;current:Track|null;go:(s:string)=>void}){
+function HomeView({greeting,onSearch,liked,like,playlists,play,current,go}:{greeting:string;onSearch:(s:string)=>void;liked:Track[];like:(t:Track)=>void;playlists:Playlist[];play:(t:Track,list?:Track[])=>void;current:Track|null;go:(s:string)=>void}){
  const [featured,setFeatured]=useState<Track[]>([]);const [loading,setLoading]=useState(true);useEffect(()=>{const c=new AbortController();catalogue("Tems Burna Boy SZA",c.signal).then(d=>setFeatured(d.slice(0,8))).catch(()=>setFeatured([])).finally(()=>setLoading(false));return()=>c.abort()},[]);
  return <div className="page home-page"><div className="welcome-row"><div><span className="overline">YOUR MUSIC, YOUR MOMENT</span><h1>{greeting}.</h1><p>What sounds good right now?</p></div><span className="live-indicator"><i/> CATALOGUE LIVE</span></div>
  <div className="hero-search" role="button" tabIndex={0} onClick={()=>onSearch("Afrobeats")} onKeyDown={e=>e.key==="Enter"&&onSearch("Afrobeats")}><div className="hero-search-icon"><Search size={22}/></div><div><strong>Find a song, artist or album</strong><span>Search the catalogue and press play</span></div><ArrowRight size={18}/></div>
