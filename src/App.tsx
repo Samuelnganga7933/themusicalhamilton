@@ -10,7 +10,7 @@ function useLocalClock(){const [now,setNow]=useState(()=>new Date());useEffect((
 function App(){
 const{path,navigate}=useRoute();const{time,timezone,zone,greeting}=useLocalClock();
 const[query,setQuery]=useState("");const[mobile,setMobile]=useState(false);
-const[liked,setLiked]=useState<string[]>(()=>{try{return JSON.parse(localStorage.getItem("vibra-liked")||"[]")}catch{return[]}});
+const[liked,setLiked]=useState<string[]>(()=>{try{return (JSON.parse(localStorage.getItem("vibra-liked")||"[]") as string[]).filter(id=>tracks.some(t=>t.id===id))}catch{return[]}});
 useEffect(()=>localStorage.setItem("vibra-liked",JSON.stringify(liked)),[liked]);
 const genre=new URLSearchParams(path.split("?")[1]||"").get("genre")||"";
 const filtered=useMemo(()=>tracks.filter(t=>[t.title,t.artist,t.album,t.genre].join(" ").toLowerCase().includes(query.toLowerCase())&&(!genre||t.genre.toLowerCase()===genre.toLowerCase())),[query,genre]);
