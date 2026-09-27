@@ -137,3 +137,7 @@ button:focus-visible,input:focus-visible{outline-color:var(--purple-hover)}
 .queue-play>svg{color:#b69aff;flex:none}
 .queue-remove{padding:8px;color:#777084;flex:none}
 .queue-remove:hover{color:#e7dfff}
+
+.password-toggle{display:grid;place-items:center;flex:none;padding:6px;color:#91899f}
+.password-toggle:hover{color:#cbb7ff}
+.auth-input-icon .password-toggle{margin-right:-5px}
