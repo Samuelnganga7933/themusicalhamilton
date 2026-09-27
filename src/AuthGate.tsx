@@ -1,10 +1,8 @@
 import {useEffect,useState,type FormEvent,type ReactNode} from "react";
-import {createClient,type SupabaseClient, type User} from "@supabase/supabase-js";
+import {type User} from "@supabase/supabase-js";
+import {supabase} from "./lib/supabase";
 import {Music2,Mail,LockKeyhole,ArrowRight,ArrowLeft,Check,LoaderCircle,Globe2,ShieldCheck,RefreshCw} from "lucide-react";
 
-const url=import.meta.env.VITE_SUPABASE_URL as string|undefined;
-const anon=import.meta.env.VITE_SUPABASE_ANON_KEY as string|undefined;
-const supabase:SupabaseClient|null=url&&anon?createClient(url,anon,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}):null;
 const tastes=["Afrobeats","R&B","Hip-Hop","Pop","Electronic","Indie","Jazz","Soul","Rock","Gospel","Classical","Amapiano"];
 type Props={children:ReactNode};
 type Mode="signin"|"signup"|"forgot";
