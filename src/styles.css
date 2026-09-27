@@ -115,3 +115,7 @@ button:focus-visible,input:focus-visible{outline-color:var(--purple-hover)}
 .now-album-info:hover p{color:#cbb7ff}
 .now-album-info p{transition:color .15s}
 @media(max-width:700px){.detail-hero{padding:20px;margin-top:18px}.album-detail-hero{align-items:flex-start;gap:15px}.album-detail-hero>img{width:112px}.album-detail-hero h1{font-size:23px;letter-spacing:-.8px}.artist-detail-hero{min-height:190px}.artist-detail-hero h1{font-size:36px}}
+
+/* Scene choice is the sole ambient source; a static choice truly stops motion. */
+.vibra-app{animation:none!important;background-image:none!important}
+.vibra-app.motion-static,.vibra-app.scene-static-minimal{animation:none!important;background-position:center!important}
