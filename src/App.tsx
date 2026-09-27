@@ -71,7 +71,7 @@ function HomeView({greeting,onSearch,liked,history,like,playlists,play,current,g
   {!loading&&featured.length>0&&<HomeTrackRail title="Picked for your rotation" eyebrow="A LITTLE OF WHAT YOU LOVE" tracks={featured} play={play}/>}
   {!loading&&rotation.length>0&&<HomeTrackRail title="New sounds to get into" eyebrow="KEEP DISCOVERING" tracks={rotation} play={play}/>}
   {loadError&&<div className="home-catalogue-error"><Disc3 size={19}/><span>{loadError}</span><button onClick={()=>go("/search")}>Search catalogue</button></div>}
-  {liked.length>0&&<HomeTrackRail title="Your liked songs" eyebrow="SAVED BY YOU" tracks={liked.slice(0,12)} play={play}/>}
+  {history.length>0&&<HomeTrackRail title="Pick up where you left off" eyebrow="RECENTLY PLAYED" tracks={history.slice(0,12)} play={play}/>} {liked.length>0&&<HomeTrackRail title="Your liked songs" eyebrow="SAVED BY YOU" tracks={liked.slice(0,12)} play={play}/>}
   {playlists.length>0&&<section className="home-rail-section"><div className="home-rail-heading"><div><span className="overline">YOUR COLLECTION</span><h2>Pick up where you left off</h2></div><button className="text-button" onClick={()=>go("/library")}>Your library <ArrowRight size={15}/></button></div><div className="home-playlist-strip">{playlists.slice(0,4).map(p=><button key={p.id} onClick={()=>go("/playlist/"+p.id)}><span><ListMusic size={20}/></span><strong>{p.name}</strong><small>{p.tracks.length} tracks</small></button>)}</div></section>}
   {!loading&&featured.length===0&&!loadError&&<div className="home-catalogue-error">No catalogue tracks were returned. Search for an artist to get started.</div>}
  </div>
