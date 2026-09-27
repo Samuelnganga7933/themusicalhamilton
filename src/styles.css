@@ -119,3 +119,8 @@ button:focus-visible,input:focus-visible{outline-color:var(--purple-hover)}
 /* Scene choice is the sole ambient source; a static choice truly stops motion. */
 .vibra-app{animation:none!important;background-image:none!important}
 .vibra-app.motion-static,.vibra-app.scene-static-minimal{animation:none!important;background-position:center!important}
+
+.player-buttons .player-mode{width:28px;height:28px;display:grid;place-items:center;color:#91899f;border-radius:50%;transition:color .15s,background .15s}
+.player-buttons .player-mode:hover,.player-buttons .player-mode.active{color:#cbb7ff;background:#251b35}
+.player-buttons .player-mode.active:after{content:"";width:3px;height:3px;border-radius:50%;background:#b69aff;position:absolute;transform:translateY(10px)}
+@media(max-width:700px){.player-buttons .player-mode{width:25px;height:25px}.player-buttons .player-mode svg{width:13px;height:13px}}
