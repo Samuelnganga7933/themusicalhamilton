@@ -124,3 +124,16 @@ button:focus-visible,input:focus-visible{outline-color:var(--purple-hover)}
 .player-buttons .player-mode:hover,.player-buttons .player-mode.active{color:#cbb7ff;background:#251b35}
 .player-buttons .player-mode.active:after{content:"";width:3px;height:3px;border-radius:50%;background:#b69aff;position:absolute;transform:translateY(10px)}
 @media(max-width:700px){.player-buttons .player-mode{width:25px;height:25px}.player-buttons .player-mode svg{width:13px;height:13px}}
+
+.queue-clear{display:block;margin:0 0 10px auto;padding:6px 10px;border:1px solid #393348;color:#cbb7ff;font-size:10px}
+.queue-clear:hover{background:#251b35}
+.queue-item{display:flex;align-items:center;gap:5px;width:100%;padding:0;border-bottom:1px solid #292735}
+.queue-play{display:flex;align-items:center;gap:10px;flex:1;min-width:0;padding:9px 0;text-align:left}
+.queue-play img{width:38px;height:38px;object-fit:cover;border-radius:4px;flex:none}
+.queue-play span{display:grid;gap:4px;min-width:0;flex:1}
+.queue-play strong,.queue-play small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.queue-play strong{font-size:11px}
+.queue-play small{font-size:10px;color:#91899f}
+.queue-play>svg{color:#b69aff;flex:none}
+.queue-remove{padding:8px;color:#777084;flex:none}
+.queue-remove:hover{color:#e7dfff}
