@@ -33,7 +33,9 @@ create policy "Users can update their own profile"
 
 -- Clients can update preferences but cannot directly flip the completion flag.
 revoke update on public.profiles from authenticated;
-grant select, insert, delete on public.profiles to authenticated;
+grant select, delete on public.profiles to authenticated;
+grant insert (id, display_name, timezone, music_interests, terms_accepted_at, terms_version, created_at, updated_at)
+  on public.profiles to authenticated;
 grant update (display_name, timezone, music_interests, terms_accepted_at, terms_version, updated_at)
   on public.profiles to authenticated;
 
