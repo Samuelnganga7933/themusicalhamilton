@@ -51,6 +51,7 @@ Before enabling account sign-up in a new Supabase project, apply the SQL migrati
 
 1. `202609270001_profiles_onboarding.sql` — private profile row, row-level security, and server-confirmed onboarding completion.
 2. `202609270002_user_libraries.sql` — account-scoped likes and playlists with row-level security.
+3. `202609270003_artist_preferences.sql` — live-catalogue artist preferences saved during onboarding.
 
 The frontend deliberately checks the `profiles` table and calls the `complete_vibra_onboarding` database function. If the migrations have not been applied, onboarding will not finish. The library is account-scoped in Supabase; browser localStorage is not the source of truth.
 
