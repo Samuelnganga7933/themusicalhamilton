@@ -40,7 +40,7 @@ Vibra uses Supabase Auth. The app is deliberately gated: it will not render the 
 - Confirmation email must be verified before the music app is accessible.
 - Resend verification and password reset flows.
 - First-run profile name, at least three music interests, detected timezone and explicit Terms/Privacy acceptance.
-- Onboarding completion is stored in the authenticated Supabase user metadata, not just a local "skip" flag.
+- Onboarding drafts and completion are stored in the RLS-protected Supabase profile table. Completion is set only by the database RPC after validating required profile, genre, and terms fields.
 
 The Terms and Privacy screens currently contain early-stage draft copy. Add the operator's legal name, contact details and applicable jurisdiction, and obtain a proper review before public launch.
 
@@ -52,6 +52,8 @@ Before enabling account sign-up in a new Supabase project, apply the SQL migrati
 1. `202609270001_profiles_onboarding.sql` — private profile row, row-level security, and server-confirmed onboarding completion.
 2. `202609270002_user_libraries.sql` — account-scoped likes and playlists with row-level security.
 3. `202609270003_artist_preferences.sql` — live-catalogue artist preferences saved during onboarding.
+4. `202609270004_appearance_preferences.sql` — account-synced scene, intensity, and reduced-motion settings.
+5. `202609270005_onboarding_draft_permissions.sql` — permissions for saving unfinished onboarding selections.
 
 The frontend deliberately checks the `profiles` table and calls the `complete_vibra_onboarding` database function. If the migrations have not been applied, onboarding will not finish. The library is account-scoped in Supabase; browser localStorage is not the source of truth.
 
